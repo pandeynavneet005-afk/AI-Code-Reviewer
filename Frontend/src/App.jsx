@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Header from './components/Header';
 import CodeEditor from './components/CodeEditor';
 import Toolbar from './components/Toolbar';
@@ -7,15 +8,37 @@ import { useCodeReview } from './hooks/useCodeReview';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
-  const { code, setCode, review, isLoading, error, runReview, clearAll } = useCodeReview();
+
+  const {
+    code,
+    setCode,
+    review,
+    isLoading,
+    error,
+    runReview,
+    clearAll,
+  } = useCodeReview();
+
+  // Selected programming language
+  const [language, setLanguage] = useState('javascript');
 
   return (
     <div className="app-shell">
-      <Header theme={theme} onToggleTheme={toggleTheme} />
+      <Header
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       <main className="app-main">
         <section className="editor-column">
-          <CodeEditor code={code} onChange={setCode} disabled={isLoading} />
+          <CodeEditor
+            code={code}
+            onChange={setCode}
+            disabled={isLoading}
+            language={language}
+            onLanguageChange={setLanguage}
+          />
+
           <Toolbar
             onReview={runReview}
             onClear={clearAll}
@@ -25,7 +48,11 @@ function App() {
         </section>
 
         <section className="review-column">
-          <ReviewPanel review={review} isLoading={isLoading} error={error} />
+          <ReviewPanel
+            review={review}
+            isLoading={isLoading}
+            error={error}
+          />
         </section>
       </main>
 

@@ -1,6 +1,14 @@
 function SunIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="12" r="4.5" />
       <path
         strokeLinecap="round"
@@ -12,7 +20,15 @@ function SunIcon() {
 
 function MoonIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -23,27 +39,42 @@ function MoonIcon() {
 }
 
 export default function Header({ theme, onToggleTheme }) {
+  const isDark = theme === 'dark';
+
   return (
     <header className="app-header">
       <div className="brand">
-        <span className="brand-mark" aria-hidden="true">
-          {'</>'}
-        </span>
+        <div className="brand-mark" aria-hidden="true">
+          <span>{'</>'}</span>
+        </div>
+
         <div className="brand-text">
-          <span className="brand-name">AI Code Reviewer</span>
-          <span className="brand-tag">Instant reviews, powered by Gemini</span>
+          <span className="brand-name">
+            AI Code <span className="brand-highlight">Reviewer</span>
+          </span>
+
+          <span className="brand-tag">
+            Intelligent code analysis powered by Gemini
+          </span>
         </div>
       </div>
 
-      <button
-        type="button"
-        className="icon-button"
-        onClick={onToggleTheme}
-        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-        title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-      >
-        {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-      </button>
+      <div className="header-actions">
+        <div className="system-status" title="AI service available">
+          <span className="status-dot" aria-hidden="true" />
+          <span>AI Ready</span>
+        </div>
+
+        <button
+          type="button"
+          className="icon-button"
+          onClick={onToggleTheme}
+          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDark ? <SunIcon /> : <MoonIcon />}
+        </button>
+      </div>
     </header>
   );
 }
