@@ -6,7 +6,6 @@ const morgan = require('morgan');
 
 const config = require('./config/env');
 const logger = require('./utils/logger');
-const AppError = require('./utils/AppError');
 
 const healthRoutes = require('./routes/health.routes');
 const aiRoutes = require('./routes/ai.routes');
@@ -19,15 +18,50 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-// Required when deployed behind a reverse proxy (Render, Vercel, etc.)
-// so that req.ip / rate limiting see the real client IP.
+// Required when deployed behind Render / reverse proxy
 app.set('trust proxy', 1);
 
+// ---------------------------------------------------------
+// CORS
+// ---------------------------------------------------------
+
+const corsOptions = {
+  origin: 'https://ai-code-reviewer-eight-tan.vercel.app',
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+  ],
+
+  credentials: true,
+
+  optionsSuccessStatus: 204,
+};
+
+// IMPORTANT: CORS should be registered before routes
+app.use(cors(corsOptions));
+
+// ---------------------------------------------------------
 // Security and request middleware
+// ---------------------------------------------------------
+
 app.use(helmet());
 app.use(compression());
 
-app.use(express.json({ limit: '1mb' }));
+app.use(
+  express.json({
+    limit: '1mb',
+  })
+);
 
 app.use(
   express.urlencoded({
@@ -36,7 +70,10 @@ app.use(
   })
 );
 
+// ---------------------------------------------------------
 // Request logging
+// ---------------------------------------------------------
+
 app.use(
   morgan(config.isProduction ? 'combined' : 'dev', {
     stream: {
@@ -46,33 +83,6 @@ app.use(
     },
   })
 );
-
-// CORS configuration
-const corsOptions = {
-  origin(origin, callback) {
-    const allowedOrigins = config.cors.origins;
-
-    if (
-      !origin ||
-      allowedOrigins.length === 0 ||
-      allowedOrigins.includes(origin)
-    ) {
-      return callback(null, true);
-    }
-
-    return callback(
-      new AppError(
-        `Origin "${origin}" is not allowed by CORS policy.`,
-        403
-      )
-    );
-  },
-
-  methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
 
 // ---------------------------------------------------------
 // Health route
