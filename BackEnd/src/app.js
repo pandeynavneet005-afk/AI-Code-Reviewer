@@ -18,44 +18,69 @@ const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-// Required when deployed behind Render / reverse proxy
+// Render runs behind a reverse proxy
 app.set('trust proxy', 1);
 
-// ---------------------------------------------------------
+// =========================================================
 // CORS
-// ---------------------------------------------------------
+// =========================================================
 
-const corsOptions = {
-  origin: 'https://ai-code-reviewer-eight-tan.vercel.app',
+const allowedOrigin =
+  'https://ai-code-reviewer-eight-tan.vercel.app';
 
-  methods: [
-    'GET',
-    'POST',
-    'PUT',
-    'PATCH',
-    'DELETE',
-    'OPTIONS',
-  ],
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', allowedOrigin);
+  res.header(
+    'Access-Control-Allow-Methods',
+    'GET,POST,PUT,PATCH,DELETE,OPTIONS'
+  );
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  res.header('Access-Control-Allow-Credentials', 'true');
 
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-  ],
+  // Handle browser preflight request immediately
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
 
-  credentials: true,
+  next();
+});
 
-  optionsSuccessStatus: 204,
-};
+// Also use the cors package for normal requests
+app.use(
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+    methods: [
+      'GET',
+      'POST',
+      'PUT',
+      'PATCH',
+      'DELETE',
+      'OPTIONS',
+    ],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+    ],
+  })
+);
 
-// IMPORTANT: CORS should be registered before routes
-app.use(cors(corsOptions));
-
-// ---------------------------------------------------------
-// Security and request middleware
-// ---------------------------------------------------------
+// =========================================================
+// SECURITY
+// =========================================================
 
 app.use(helmet());
 app.use(compression());
+
+// =========================================================
+// BODY PARSING
+// =========================================================
 
 app.use(
   express.json({
@@ -70,29 +95,33 @@ app.use(
   })
 );
 
-// ---------------------------------------------------------
-// Request logging
-// ---------------------------------------------------------
+// =========================================================
+// REQUEST LOGGING
+// =========================================================
 
 app.use(
   morgan(config.isProduction ? 'combined' : 'dev', {
     stream: {
-      write: (message) =>
-        logger.http?.(message.trim()) ??
-        logger.info(message.trim()),
+      write: (message) => {
+        if (logger.http) {
+          logger.http(message.trim());
+        } else {
+          logger.info(message.trim());
+        }
+      },
     },
   })
 );
 
-// ---------------------------------------------------------
-// Health route
-// ---------------------------------------------------------
+// =========================================================
+// HEALTH
+// =========================================================
 
 app.use('/health', healthRoutes);
 
-// ---------------------------------------------------------
-// API information
-// ---------------------------------------------------------
+// =========================================================
+// ROOT API
+// =========================================================
 
 app.get('/', (req, res) => {
   res.status(200).json({
@@ -111,35 +140,40 @@ app.get('/', (req, res) => {
   });
 });
 
-// ---------------------------------------------------------
-// Authentication routes
-// ---------------------------------------------------------
+// =========================================================
+// AUTHENTICATION
+// =========================================================
 
 app.use('/api/auth', authRoutes);
 
-// ---------------------------------------------------------
-// User routes
-// ---------------------------------------------------------
+// =========================================================
+// USERS
+// =========================================================
 
 app.use('/api/users', userRoutes);
 
-// ---------------------------------------------------------
-// Review history routes
-// ---------------------------------------------------------
+// =========================================================
+// REVIEWS
+// =========================================================
 
 app.use('/api/reviews', reviewRoutes);
 
-// ---------------------------------------------------------
-// AI review routes
-// ---------------------------------------------------------
+// =========================================================
+// AI REVIEW
+// =========================================================
 
 app.use('/ai', aiRoutes);
 
-// ---------------------------------------------------------
-// Error handling
-// ---------------------------------------------------------
+// =========================================================
+// 404
+// =========================================================
 
 app.use(notFound);
+
+// =========================================================
+// ERROR HANDLER
+// =========================================================
+
 app.use(errorHandler);
 
 module.exports = app;
