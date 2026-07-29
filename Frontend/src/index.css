@@ -1421,19 +1421,134 @@ button {
 }
 
 /* =========================================================
-   FOOTER
+   DEVELOPER FOOTER
    ========================================================= */
 
 .app-footer {
   flex-shrink: 0;
 
-  padding: 0.65rem 0 1rem;
+  padding: 0.75rem 0 1.15rem;
 
   text-align: center;
 
   color: var(--text-muted);
 
-  font-size: 0.68rem;
+  font-size: 0.7rem;
+}
+
+.footer-content {
+  width: fit-content;
+  max-width: 100%;
+
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  gap: 0.55rem;
+
+  padding: 0.55rem 1rem;
+
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--accent-soft),
+      transparent 55%
+    ),
+    var(--bg-elevated);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.footer-brand {
+  font-family: var(--font-display);
+
+  font-size: 0.72rem;
+  font-weight: 650;
+
+  color: var(--text);
+}
+
+.footer-divider {
+  color: var(--border);
+  font-size: 0.75rem;
+}
+
+.footer-credit {
+  color: var(--text-muted);
+}
+
+.footer-credit strong {
+  margin-left: 0.15rem;
+
+  color: var(--accent);
+
+  font-family: var(--font-display);
+  font-weight: 650;
+
+  letter-spacing: 0.01em;
+}
+
+.footer-powered {
+  display: inline-flex;
+  align-items: center;
+
+  color: var(--text-muted);
+}
+
+.footer-powered::before {
+  content: '✦';
+
+  margin-right: 0.3rem;
+
+  color: var(--accent);
+
+  font-size: 0.65rem;
+}
+
+/* Light theme footer */
+
+[data-theme='light'] .footer-content {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 4px 16px rgba(50, 30, 90, 0.06);
+}
+
+/* Mobile footer */
+
+@media (max-width: 650px) {
+  .app-footer {
+    padding: 0.7rem 0 1rem;
+  }
+
+  .footer-content {
+    width: 100%;
+
+    flex-direction: column;
+
+    gap: 0.25rem;
+
+    padding: 0.7rem 0.8rem;
+
+    border-radius: 14px;
+  }
+
+  .footer-divider {
+    display: none;
+  }
+
+  .footer-brand,
+  .footer-credit,
+  .footer-powered {
+    font-size: 0.68rem;
+  }
 }
 
 /* =========================================================

@@ -57,7 +57,24 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <span>Built for fast, focused code reviews.</span>
+        <div className="footer-content">
+          <span className="footer-brand">
+            AI Code Reviewer
+          </span>
+
+          <span className="footer-divider">•</span>
+
+          <span className="footer-credit">
+            Designed &amp; Developed by
+            <strong> Navneet Pandey</strong>
+          </span>
+
+          <span className="footer-divider">•</span>
+
+          <span className="footer-powered">
+            Powered by Gemini AI
+          </span>
+        </div>
       </footer>
     </div>
   );
