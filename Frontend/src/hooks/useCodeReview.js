@@ -5,7 +5,7 @@ const DEFAULT_CODE = `function sum(a, b) {
   return a + b
 }`;
 
-export function useCodeReview() {
+export function useCodeReview(language = 'javascript') {
   const [code, setCode] = useState(DEFAULT_CODE);
   const [review, setReview] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,14 +18,16 @@ export function useCodeReview() {
     setError('');
 
     try {
-      const result = await requestCodeReview(code);
+      const result = await requestCodeReview(code, language);
       setReview(result);
     } catch (err) {
-      setError(err.message || 'Failed to get a review. Please try again.');
+      setError(
+        err.message || 'Failed to get a review. Please try again.'
+      );
     } finally {
       setIsLoading(false);
     }
-  }, [code, isLoading]);
+  }, [code, language, isLoading]);
 
   const clearAll = useCallback(() => {
     setCode('');

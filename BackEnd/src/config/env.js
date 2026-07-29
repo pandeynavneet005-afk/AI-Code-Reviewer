@@ -42,6 +42,9 @@ const config = Object.freeze({
     apiKey: requireEnv('GOOGLE_GEMINI_KEY', { required: true }),
     model: requireEnv('GEMINI_MODEL', { fallback: 'gemini-2.0-flash' }),
   }),
+  database: Object.freeze({
+  mongoUri: requireEnv('MONGODB_URI', { required: true }),
+}),
 
   cors: Object.freeze({
     origins: parseOrigins(requireEnv('CORS_ORIGIN', { fallback: '' })),
