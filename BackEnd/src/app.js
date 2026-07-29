@@ -22,54 +22,66 @@ const app = express();
 app.set('trust proxy', 1);
 
 // =========================================================
+// TEMPORARY REQUEST DEBUGGING
+// Keep this above CORS so OPTIONS requests are also logged.
+// =========================================================
+
+app.use((req, res, next) => {
+  console.log('====================================');
+  console.log('INCOMING REQUEST:', req.method, req.originalUrl);
+  console.log('ORIGIN:', req.headers.origin || 'NO ORIGIN');
+  console.log('====================================');
+  next();
+});
+
+// =========================================================
 // CORS
 // =========================================================
 
 const allowedOrigin =
   'https://ai-code-reviewer-eight-tan.vercel.app';
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', allowedOrigin);
-  res.header(
-    'Access-Control-Allow-Methods',
-    'GET,POST,PUT,PATCH,DELETE,OPTIONS'
-  );
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-  );
-  res.header('Access-Control-Allow-Credentials', 'true');
+const corsOptions = {
+  origin(origin, callback) {
+    // Requests such as Render health checks may not contain Origin.
+    if (!origin || origin === allowedOrigin) {
+      return callback(null, true);
+    }
 
-  // Handle browser preflight request immediately
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
+    console.log('CORS BLOCKED ORIGIN:', origin);
 
-  next();
-});
+    return callback(
+      new Error(`Origin ${origin} is not allowed by CORS`)
+    );
+  },
 
-// Also use the cors package for normal requests
-app.use(
-  cors({
-    origin: allowedOrigin,
-    credentials: true,
-    methods: [
-      'GET',
-      'POST',
-      'PUT',
-      'PATCH',
-      'DELETE',
-      'OPTIONS',
-    ],
-    allowedHeaders: [
-      'Origin',
-      'X-Requested-With',
-      'Content-Type',
-      'Accept',
-      'Authorization',
-    ],
-  })
-);
+  credentials: true,
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+  ],
+
+  allowedHeaders: [
+    'Origin',
+    'X-Requested-With',
+    'Content-Type',
+    'Accept',
+    'Authorization',
+  ],
+
+  optionsSuccessStatus: 204,
+};
+
+// CORS MUST be before all API routes
+app.use(cors(corsOptions));
+
+// Explicitly handle preflight requests
+app.options(/.*/, cors(corsOptions));
 
 // =========================================================
 // SECURITY
